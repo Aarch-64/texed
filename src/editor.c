@@ -22,8 +22,7 @@ void writeEditor(unsigned int mode)
 
     initEditor(mode); // Initialize editor
     saveFile(); // Save in temp file
-    getch();
-    wrefresh(texed); // Refresh window
+    refresh(); // Refresh window
 
     do
     {
@@ -55,12 +54,12 @@ void readEditor(FILE *tfile)
 // Print file content on screen
 void editorPrint()
 {
-    wattron(texed, COLOR_PAIR(2)); // apply color's configuration
-    mvwprintw(texed, 0, E.cols / 2 - strlen(title) / 2, "%s", title);
-    mvwprintw(texed, E.rows - 1, 0, "^X Exit  ^S Save");
-    wattron(texed, COLOR_PAIR(1)); // apply color's configuration
-    wmove(texed, 1, 0);            // Move cursor to the first position
-
+    attron(COLOR_PAIR(2)); // apply color's configuration
+    mvprintw(0, E.cols / 2 - strlen(title) / 2, "%s", title);
+    mvprintw(E.rows - 1, 0, "^X Exit  ^S Save");
+    attron(COLOR_PAIR(1)); // apply color's configuration
+    move(1, 0);            // Move cursor to the first position
+    
     if (E.nRows < E.rows - 1)
     {
         for (E.y = 0; E.y < E.nRows; E.y++)
@@ -70,7 +69,7 @@ void editorPrint()
             {
                 for (E.x = 0; E.x < E.cols; E.x++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.x]);
+                    addch(E.wRows[E.y].wText[E.x]);
                 }
             }
             // Print line smaller than the window
@@ -78,11 +77,11 @@ void editorPrint()
             {
                 for (E.x = 0; E.x < E.wRows[E.y].length; E.x++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.x]);
+                    addch(E.wRows[E.y].wText[E.x]);
                 }
                 // Add new line
                 if (E.wRows[E.y].wText[E.wRows[E.y].length - 1] != '\n')
-                    waddch(texed, '\n');
+                    addch('\n');
                 else
                     continue;
             }
@@ -97,7 +96,7 @@ void editorPrint()
             {
                 for (E.x = 0; E.x < E.cols; E.x++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.x]);
+                    addch(E.wRows[E.y].wText[E.x]);
                 }
             }
             // Print line smaller than the window
@@ -105,11 +104,11 @@ void editorPrint()
             {
                 for (E.x = 0; E.x < E.wRows[E.y].length; E.x++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.x]);
+                    addch(E.wRows[E.y].wText[E.x]);
                 }
                 // Add new line
                 if (E.wRows[E.y].wText[E.wRows[E.y].length - 1] != '\n')
-                    waddch(texed, '\n');
+                    addch('\n');
                 else
                     continue;
             }
@@ -122,32 +121,31 @@ void printChar()
     // Print changes
     if (E.wRows[E.y].length < E.cols)
     {
-
-        wmove(texed, E.sy, 0);              // Move cursor to the first position
-        wclrtoeol(texed);                   // Clear line
-        wprintw(texed, E.wRows[E.y].wText); // Print line
+        move(E.sy, 0);              // Move cursor to the first position
+        clrtoeol();                   // Clear line
+        printw(E.wRows[E.y].wText); // Print line
     }
     else if (E.wRows[E.y].length >= E.cols && E.x >= E.cols)
     {
         // if(E.x == E.cols) E.sy--;
-        wmove(texed, E.sy, 0); // Move cursor to the first position
-        wclrtoeol(texed);      // Clear line
+        move(E.sy, 0); // Move cursor to the first position
+        clrtoeol();      // Clear line
 
         // Print line
         for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
         {
-            waddch(texed, E.wRows[E.y].wText[E.sx]);
+            addch(E.wRows[E.y].wText[E.sx]);
         }
     }
     else if (E.wRows[E.y].length >= E.cols && E.x < E.cols)
     {
-        wmove(texed, E.sy, 0); // Move cursor to the first position
-        wclrtoeol(texed);      // Clear line
+        move(E.sy, 0); // Move cursor to the first position
+        clrtoeol();      // Clear line
 
         // Print line
         for (E.sx = 0; E.sx < E.cols; E.sx++)
         {
-            waddch(texed, E.wRows[E.y].wText[E.sx]);
+            addch(E.wRows[E.y].wText[E.sx]);
         }
     }
     // Restore cursor position
@@ -157,7 +155,7 @@ void printChar()
         E.sx = E.x;
     else if (E.x >= E.cols)
         E.sx = E.x - E.cols;
-    wmove(texed, E.sy, E.sx); // Move cursor
+    move(E.sy, E.sx); // Move cursor
 }
 
 void saveFile()
@@ -193,7 +191,7 @@ void initEditor(unsigned int mode)
         E.sy = E.y - E.fy + 1;
         E.fy = 0;
         E.sx = E.x;
-        wmove(texed, E.sy, E.sx); // Move cursor
+        move(E.sy, E.sx); // Move cursor
     }
     else if (mode == 1)
     {
@@ -206,7 +204,7 @@ void initEditor(unsigned int mode)
         E.sy = E.y - E.fy + 1;
         E.fy = 0;
         E.sx = E.x;
-        wmove(texed, E.sy, E.sx); // Move cursor
+        move(E.sy, E.sx); // Move cursor
     }
     else
     {
@@ -217,12 +215,12 @@ void initEditor(unsigned int mode)
 
 void exitEditor()
 {
-    mvwprintw(texed, E.rows - 1, 0, "Do you want to save the file? (y/n): ");
-    wrefresh(texed);
+    mvprintw(E.rows - 1, 0, "Do you want to save the file? (y/n): ");
+    refresh();
 
     int c = getch();
-    waddch(texed, c);
-    wrefresh(texed);
+    addch(c);
+    refresh();
 
     if (c == 'n' || c == 'N')
     {
@@ -248,7 +246,7 @@ void exitEditor()
     }
 
     free(E.wRows);  // Free memory
-    wclear(texed);  // Clear window
+    clear();  // Clear window
     endwin();       // End curses mode
     fclose(fileIn); // Close file
 
@@ -272,19 +270,19 @@ void inputKeyProcess(int c)
             E.sx--;
             if (E.x == E.cols - 1)
             {
-                wmove(texed, E.sy, 0); // Move cursor to the first position
-                wclrtoeol(texed);      // Clear line
+                move(E.sy, 0); // Move cursor to the first position
+                clrtoeol();      // Clear line
 
                 // Print line
                 for (E.sx = 0; E.sx < E.cols; E.sx++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.sx]);
+                    addch(E.wRows[E.y].wText[E.sx]);
                 }
                 E.sx = E.x;
             }
-            wmove(texed, E.sy, E.sx);
+            move(E.sy, E.sx);
 
-            wdelch(texed); // Delete actual character on screen
+            delch(); // Delete actual character on screen
 
             // Delete actual character on memory
             memmove(&E.wRows[E.y].wText[E.x], &E.wRows[E.y].wText[E.x + 1], E.wRows[E.y].length - E.x);
@@ -309,12 +307,12 @@ void inputKeyProcess(int c)
             // Save cursor position
             tx = E.x;
             ty = E.y;
-            wmove(texed, E.sy, E.sx);
+            move(E.sy, E.sx);
             
             if (E.fy > 0)
                 E.fy--;
 
-            wclear(texed); // Delete actual character
+            clear(); // Delete actual character
             editorPrint(); // Print content
 
             // Restore cursor position
@@ -325,17 +323,17 @@ void inputKeyProcess(int c)
             // Line is larger than the window
             if (E.x >= E.cols)
             {
-                wmove(texed, E.sy, 0); // Move cursor to the first position
-                wclrtoeol(texed);      // Clear line
+                move(E.sy, 0); // Move cursor to the first position
+                clrtoeol();      // Clear line
                 for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.sx]);
+                    addch(E.wRows[E.y].wText[E.sx]);
                 }
                 E.sx = E.x - E.cols;
             }
             else
                 E.sx = E.x;
-            wmove(texed, E.sy, E.sx);
+            move(E.sy, E.sx);
         }
     }
     else if (c == KEY_ENTER || c == 13 || c == 10)
@@ -361,7 +359,7 @@ void inputKeyProcess(int c)
             editorUpdateRow(&E.wRows[E.y]);
             editorUpdateRow(&E.wRows[E.y - 1]);
 
-            wclear(texed); // Clear window
+            clear(); // Clear window
             editorPrint(); // Print content
 
             // Restore cursor position
@@ -377,7 +375,7 @@ void inputKeyProcess(int c)
             editorInsertRow(E.y, "", 0);
             editorUpdateRow(&E.wRows[E.y]);
 
-            wclear(texed);
+            clear(); // Clear window
             editorPrint();
 
             // Restore cursor position
@@ -390,7 +388,7 @@ void inputKeyProcess(int c)
             editorAppendRow("", 0);
             editorUpdateRow(&E.wRows[E.y]);
 
-            wclear(texed); // Clear window
+            clear(); // Clear window
             editorPrint(); // Print content
 
             // Move cursor
@@ -403,7 +401,7 @@ void inputKeyProcess(int c)
             ty = E.y;
             tx = E.x;
             E.fy++;
-            wclear(texed); // Clear window
+            clear(); // Clear window
             editorPrint(); // Print content
             E.y = ty;
             E.x = tx;
@@ -417,7 +415,7 @@ void inputKeyProcess(int c)
         }
         E.x = 0;
         E.sx = E.x;
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
 
         // If the character is left
     }
@@ -438,7 +436,7 @@ void inputKeyProcess(int c)
                 ty = E.y;
                 tx = E.x;
                 E.fy--;
-                wclear(texed); // Clear window
+                clear(); // Clear window
                 editorPrint(); // Print content
                 E.y = ty;
                 E.x = tx;
@@ -447,13 +445,13 @@ void inputKeyProcess(int c)
             // Reprint current line
             if (E.wRows[E.y].length >= E.cols)
             {
-                wmove(texed, E.sy, 0); // Move cursor to the first position
-                wclrtoeol(texed);      // Clear line
+                move(E.sy, 0); // Move cursor to the first position
+                clrtoeol();      // Clear line
 
                 // Print line
                 for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.sx]);
+                    addch(E.wRows[E.y].wText[E.sx]);
                 }
             }
             E.x = E.wRows[E.y].length;
@@ -462,17 +460,17 @@ void inputKeyProcess(int c)
         // Move to the previows screen
         if (E.x == E.cols - 1)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = 0; E.sx < E.cols; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
             E.sx = E.x;
         }
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
     }
     else if (c == KEY_RIGHT)
     {
@@ -486,13 +484,13 @@ void inputKeyProcess(int c)
             // Reprint current line
             if (E.wRows[E.y].length >= E.cols)
             {
-                wmove(texed, E.sy, 0); // Move cursor to the first position
-                wclrtoeol(texed);      // Clear line
+                move(E.sy, 0); // Move cursor to the first position
+                clrtoeol();      // Clear line
 
                 // Print line
                 for (E.sx = 0; E.sx < E.cols; E.sx++)
                 {
-                    waddch(texed, E.wRows[E.y].wText[E.sx]);
+                    addch(E.wRows[E.y].wText[E.sx]);
                 }
             }
             E.y++;
@@ -503,7 +501,7 @@ void inputKeyProcess(int c)
                 ty = E.y;
                 tx = E.x;
                 E.fy++;
-                wclear(texed); // Clear window
+                clear(); // Clear window
                 editorPrint(); // Print content
                 E.y = ty;
                 E.x = tx;
@@ -523,30 +521,30 @@ void inputKeyProcess(int c)
         // Move to the next screen
         if (E.sx == E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
             E.sx = E.x - E.cols;
         }
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
     }
     else if (c == KEY_DOWN)
     {
         // Reprint current line
         if (E.x >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = 0; E.sx < E.cols; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
         }
         // Move cursor to the next line
@@ -558,7 +556,7 @@ void inputKeyProcess(int c)
             ty = E.y;
             tx = E.x;
             E.fy++;
-            wclear(texed); // Clear window
+            clear(); // Clear window
             editorPrint(); // Print content
             E.y = ty;
             E.x = tx;
@@ -580,30 +578,30 @@ void inputKeyProcess(int c)
         // Line is larger than the window
         if (E.x >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
             E.sx = E.x - E.cols;
         }
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
     }
     else if (c == KEY_UP)
     {
         // Reprint current line
         if (E.x >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = 0; E.sx < E.cols; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
         }
         // Move cursor to the previous line
@@ -615,7 +613,7 @@ void inputKeyProcess(int c)
             ty = E.y;
             tx = E.x;
             E.fy--;
-            wclear(texed); // Clear window
+            clear(); // Clear window
             editorPrint(); // Print content
             E.y = ty;
             E.x = tx;
@@ -639,17 +637,17 @@ void inputKeyProcess(int c)
         // Line is larger than the window
         if (E.x >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
             E.sx = E.x - E.cols;
         }
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
     }
     else if (c == KEY_END)
     {
@@ -657,19 +655,19 @@ void inputKeyProcess(int c)
         // Reprint current line
         if (E.wRows[E.y].length >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = 0; E.sx < E.cols; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
         }
         // Move cursor to the end of the page
         E.y = E.nRows - 1;
         E.fy = E.nRows - E.rows + 2;
-        wclear(texed); // Clear window
+        clear(); // Clear window
         editorPrint(); // Print content
         E.y = E.nRows - 1;
         E.fy = E.nRows - E.rows + 2;
@@ -677,18 +675,18 @@ void inputKeyProcess(int c)
         // Reprint line
         if (E.wRows[E.y].length >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = E.cols; E.sx < E.wRows[E.y].length; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
         }
         E.x = E.wRows[E.y].length;
         E.sx = E.x;
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
     }
     else if (c == KEY_HOME)
     {
@@ -696,26 +694,26 @@ void inputKeyProcess(int c)
         // Reprint line
         if (E.wRows[E.y].length >= E.cols)
         {
-            wmove(texed, E.sy, 0); // Move cursor to the first position
-            wclrtoeol(texed);      // Clear line
+            move(E.sy, 0); // Move cursor to the first position
+            clrtoeol();      // Clear line
 
             // Print line
             for (E.sx = 0; E.sx < E.cols; E.sx++)
             {
-                waddch(texed, E.wRows[E.y].wText[E.sx]);
+                addch(E.wRows[E.y].wText[E.sx]);
             }
         }
         // Move cursor to the start of the page
         E.y = 0;
         E.fy = 0;
-        wclear(texed); // Clear window
+        clear(); // Clear window
         editorPrint(); // Print content
         E.y = 0;
         E.fy = 0;
         E.sy = E.y - E.fy + 1;
         E.x = 0;
         E.sx = E.x;
-        wmove(texed, E.sy, E.sx);
+        move(E.sy, E.sx);
     }
     else if (c == CTRL_KEY('s'))
     {
@@ -736,6 +734,6 @@ void inputKeyProcess(int c)
         printChar();
         E.sy = E.y - E.fy + 1;
     }
-    wrefresh(texed);          // refresh the window
-    getyx(texed, E.sy, E.sx); // get cursor position
+    refresh();          // Refresh window
+    getyx(stdscr, E.sy, E.sx); // get cursor position
 }
