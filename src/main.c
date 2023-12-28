@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 
     init_log();
     
-    startScreen(); // Start screen
     screenInfo();  // Generate screen info
+    startScreen(); // Start screen
 
     if (mode == 1)
         writeEditor(mode); // Run editor write mode

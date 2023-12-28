@@ -1,6 +1,9 @@
 //
 // Created by xdanep on 3/12/23.
 //
+// Copyright (c) 2016, Salvatore Sanfilippo <antirez at gmail dot com>
+//
+// All rights reserved.
 #include <unistd.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -18,7 +21,9 @@ void writeEditor(unsigned int mode)
     int c; // Character and iterator
 
     initEditor(mode); // Initialize editor
-    saveFile();       // Save in temp file
+    saveFile(); // Save in temp file
+    getch();
+    wrefresh(texed); // Refresh window
 
     do
     {
@@ -180,8 +185,7 @@ void initEditor(unsigned int mode)
     // Print file content on screen
     if (mode == 0)
     {
-        editorPrint();   // Print content
-        wrefresh(texed); // Refresh window
+        editorPrint(); // Print content
 
         // Move cursor to the first position
         E.y = 0;
@@ -190,11 +194,20 @@ void initEditor(unsigned int mode)
         E.fy = 0;
         E.sx = E.x;
         wmove(texed, E.sy, E.sx); // Move cursor
-        wrefresh(texed);          // Refresh window
     }
     else if (mode == 1)
+    {
         editorAppendRow("", 0); // Insert first line
+        editorPrint(); // Print content
 
+        // Move cursor to the first position
+        E.y = 0;
+        E.x = 0;
+        E.sy = E.y - E.fy + 1;
+        E.fy = 0;
+        E.sx = E.x;
+        wmove(texed, E.sy, E.sx); // Move cursor
+    }
     else
     {
         write_log("editor.c: initEditor: Invalid mode.\n");
@@ -298,7 +311,8 @@ void inputKeyProcess(int c)
             ty = E.y;
             wmove(texed, E.sy, E.sx);
             
-            if(E.fy > 0) E.fy--;
+            if (E.fy > 0)
+                E.fy--;
 
             wclear(texed); // Delete actual character
             editorPrint(); // Print content
