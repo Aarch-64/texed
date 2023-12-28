@@ -9,7 +9,7 @@ CC = gcc
 LLIBS = -lncurses
 
 # Compiler flags
-CFLAGS = -Wall -Werror -Wextra -std=gnu17
+CFLAGS = -Wall -Wextra -g
 
 # Objects
 OBJS = \
