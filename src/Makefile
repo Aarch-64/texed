@@ -18,7 +18,8 @@ OBJS = \
 		file.o\
 		main.o\
 		screen.o\
-		text.o 
+		text.o \
+		log.o
 
 # Remove command
 RM = rm -f
